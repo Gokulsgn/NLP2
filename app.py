@@ -1,10 +1,10 @@
 import streamlit as st
-import speech_recognition as sr
 import sounddevice as sd
-import numpy as np
+import speech_recognition as sr
 from scipy.io.wavfile import write
 from gtts import gTTS
 from io import BytesIO
+import numpy as np
 
 # Custom CSS for styling
 st.markdown("""
