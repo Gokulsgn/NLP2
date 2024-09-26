@@ -1,7 +1,10 @@
 import streamlit as st
 import speech_recognition as sr
+import sounddevice as sd
+import numpy as np
+from scipy.io.wavfile import write
 from gtts import gTTS
-from io import BytesIO  # For handling in-memory files
+from io import BytesIO
 
 # Custom CSS for styling
 st.markdown("""
@@ -26,13 +29,20 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Speech-to-Text function
+# Speech-to-Text function using sounddevice for recording
 def speech_to_text():
     recognizer = sr.Recognizer()
     try:
-        with sr.Microphone() as source:
-            st.info("Say something...")
-            audio = recognizer.listen(source)
+        fs = 44100  # Sample rate
+        duration = 5  # Duration in seconds
+        st.info("Recording for 5 seconds...")
+        recording = sd.rec(int(duration * fs), samplerate=fs, channels=1)
+        sd.wait()  # Wait until the recording is finished
+        write('output.wav', fs, recording)  # Save as WAV file
+
+        # Now use SpeechRecognition to process the WAV file
+        with sr.AudioFile('output.wav') as source:
+            audio = recognizer.record(source)
             try:
                 text = recognizer.recognize_google(audio)
                 st.success(f"You said: {text}")
