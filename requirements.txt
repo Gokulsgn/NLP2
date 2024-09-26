@@ -44,7 +44,6 @@ scipy==1.14.1
 setuptools==75.1.0
 six==1.16.0
 smmap==5.0.1
-sounddevice==0.5.0
 soupsieve==2.6
 SpeechRecognition==3.10.4
 streamlit==1.38.0
