@@ -26,6 +26,7 @@ protobuf==5.28.2
 pyarrow==17.0.0
 pycparser==2.22
 pydeck==0.9.1
+pydub==0.25.1
 Pygments==2.18.0
 python-dateutil==2.9.0.post0
 pytz==2024.2
@@ -36,7 +37,6 @@ rpds-py==0.20.0
 scipy==1.14.1
 six==1.16.0
 smmap==5.0.1
-sounddevice==0.5.0
 SpeechRecognition==3.10.4
 streamlit==1.38.0
 streamlit-audiorec==0.1.3
