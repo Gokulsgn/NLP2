@@ -24,7 +24,7 @@ pandas==2.2.3
 pillow==10.4.0
 protobuf==5.28.2
 pyarrow==17.0.0
-PyAudio==0.2.13
+PyAudio==0.2.14
 pycparser==2.22
 pydeck==0.9.1
 pydub==0.25.1
