@@ -24,6 +24,7 @@ pandas==2.2.3
 pillow==10.4.0
 protobuf==5.28.2
 pyarrow==17.0.0
+PyAudio==0.2.14
 pycparser==2.22
 pydeck==0.9.1
 pydub==0.25.1
@@ -35,6 +36,7 @@ requests==2.32.3
 rich==13.8.1
 rpds-py==0.20.0
 scipy==1.14.1
+setuptools==75.1.0
 six==1.16.0
 smmap==5.0.1
 SpeechRecognition==3.10.4

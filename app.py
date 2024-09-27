@@ -2,82 +2,136 @@ import streamlit as st
 import speech_recognition as sr
 from gtts import gTTS
 from io import BytesIO
-import pydub
-from pydub.playback import play
+import base64
 
-# Custom CSS for styling
-st.markdown("""
-    <style>
-        body {
-            background-color: #f0f4f8;
-        }
-        .stButton > button {
-            background-color: #27B7A6; /* Green */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            cursor: pointer;
-        }
-        .stButton > button:hover {
-            background-color: #27B7A6;
-        }
-        .stTextArea {
-            border-radius: 5px;
-        }
-    </style>
-""", unsafe_allow_html=True)
+# Sidebar for settings
+st.sidebar.title("Settings")
+dark_mode = st.sidebar.checkbox("Enable Dark Mode")
 
-# Speech-to-Text function using pydub
-def speech_to_text():
+# Custom CSS for light and dark modes
+def set_background_color(dark_mode):
+    if dark_mode:
+        st.markdown("""
+            <style>
+                body {
+                    background-color: #2e3b4e;
+                    color: white;
+                }
+                .stButton > button {
+                    background-color: #27B7A6;
+                    color: white;
+                    border-radius: 5px;
+                }
+                .stTextArea {
+                    background-color: #2e3b4e;
+                    color: white;
+                    border: 1px solid #4a4f54;
+                    border-radius: 5px;
+                }
+                h1, h2, h3, h4 {
+                    color: white;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <style>
+                body {
+                    background-color: #f0f4f8;
+                }
+                .stButton > button {
+                    background-color: #27B7A6;
+                    color: white;
+                    border-radius: 5px;
+                }
+                .stTextArea {
+                    background-color: #fff;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                }
+                h1, h2, h3, h4 {
+                    color: black;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+
+# Apply the selected background color scheme
+set_background_color(dark_mode)
+
+# Speech-to-Text function using live microphone input
+def live_speech_to_text():
     recognizer = sr.Recognizer()
+    mic = sr.Microphone()
+
     try:
-        # Replace this section with your own method to record an audio file using pydub or any other supported library
-        st.info("Audio recording not supported in this environment")
-        
-        # Process the WAV file with SpeechRecognition
-        audio = sr.AudioFile('example.wav')  # Replace with recorded audio if needed
-        with audio as source:
-            recorded_audio = recognizer.record(source)
+        with mic as source:
+            st.info("Adjusting for background noise...")
+            recognizer.adjust_for_ambient_noise(source)
+            st.info("Listening for speech...")
+            audio = recognizer.listen(source)
+
+            st.info("Processing speech...")
+
             try:
-                text = recognizer.recognize_google(recorded_audio)
+                # Convert speech to text using Google's speech recognition
+                text = recognizer.recognize_google(audio)
                 st.success(f"You said: {text}")
             except sr.UnknownValueError:
                 st.error("Sorry, I couldn't understand the audio.")
             except sr.RequestError as e:
                 st.error(f"Error connecting to the speech recognition service: {e}")
     except OSError:
-        st.error("Microphone not found or audio processing not supported.")
+        st.error("Microphone not found or audio input not supported in this environment.")
 
 # Text-to-Speech function (Using BytesIO to avoid saving files directly)
-def text_to_speech(text):
+def text_to_speech(text, language):
     if text:
-        tts = gTTS(text=text, lang='en')
+        tts = gTTS(text=text, lang=language)
         audio_bytes = BytesIO()
         tts.write_to_fp(audio_bytes)
         audio_bytes.seek(0)
+        
+        # Play audio in Streamlit
         st.audio(audio_bytes, format="audio/mp3")
+        
+        # Downloadable speech file
+        b64 = base64.b64encode(audio_bytes.read()).decode()
+        href = f'<a href="data:audio/mp3;base64,{b64}" download="speech.mp3">Download Speech</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
 # Streamlit app layout
-st.title("Speech-to-Text and Text-to-Speech App")
+st.title("Live Speech-to-Text and Text-to-Speech App 🎤")
 
 # Select mode
-mode = st.selectbox("Choose a mode", ["Speech-to-Text", "Text-to-Speech"])
+mode = st.selectbox("Choose a mode", ["Live Speech-to-Text", "Text-to-Speech"])
 
-# Speech-to-Text Mode
-if mode == "Speech-to-Text":
-    st.header("Convert Speech to Text")
-    if st.button("Start Recording"):
+# Live Speech-to-Text Mode
+if mode == "Live Speech-to-Text":
+    st.header("Convert Live Speech to Text")
+    
+    if st.button("Start Listening"):
         with st.spinner("Listening..."):
-            speech_to_text()
+            live_speech_to_text()
 
-# Text-to-Speech Mode
+# Text-to-Speech Mode with language selection
 if mode == "Text-to-Speech":
     st.header("Convert Text to Speech")
     user_input = st.text_area("Enter text to convert into speech:")
+    
+    # Select language for Text-to-Speech
+    language = st.selectbox("Choose language for speech", 
+                            ["English (en)", "Spanish (es)", "French (fr)", "German (de)", "Chinese (zh-CN)"])
+    
+    language_code = language.split(" ")[-1].strip('()')
+
     if st.button("Convert to Speech"):
         if user_input.strip():
             with st.spinner("Converting..."):
-                text_to_speech(user_input)
+                text_to_speech(user_input, language_code)
         else:
             st.warning("Please enter some text to convert into speech.")
+
+# Footer section
+st.markdown("---")
+st.markdown("Developed by [Gokulnath S](https://github.com/Gokulsgn/NLP2)")
+st.markdown("🔊 Enhance your text and audio experiences!")
