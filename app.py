@@ -1,5 +1,4 @@
 import streamlit as st
-import speech_recognition as sr
 from gtts import gTTS
 from io import BytesIO
 import base64
@@ -58,31 +57,6 @@ def set_background_color(dark_mode):
 # Apply the selected background color scheme
 set_background_color(dark_mode)
 
-# Speech-to-Text function using live microphone input
-def live_speech_to_text():
-    recognizer = sr.Recognizer()
-    mic = sr.Microphone()
-
-    try:
-        with mic as source:
-            st.info("Adjusting for background noise...")
-            recognizer.adjust_for_ambient_noise(source)
-            st.info("Listening for speech...")
-            audio = recognizer.listen(source)
-
-            st.info("Processing speech...")
-
-            try:
-                # Convert speech to text using Google's speech recognition
-                text = recognizer.recognize_google(audio)
-                st.success(f"You said: {text}")
-            except sr.UnknownValueError:
-                st.error("Sorry, I couldn't understand the audio.")
-            except sr.RequestError as e:
-                st.error(f"Error connecting to the speech recognition service: {e}")
-    except OSError:
-        st.error("Microphone not found or audio input not supported in this environment.")
-
 # Text-to-Speech function (Using BytesIO to avoid saving files directly)
 def text_to_speech(text, language):
     if text:
@@ -100,36 +74,24 @@ def text_to_speech(text, language):
         st.markdown(href, unsafe_allow_html=True)
 
 # Streamlit app layout
-st.title("Live Speech-to-Text and Text-to-Speech App 🎤")
-
-# Select mode
-mode = st.selectbox("Choose a mode", ["Live Speech-to-Text", "Text-to-Speech"])
-
-# Live Speech-to-Text Mode
-if mode == "Live Speech-to-Text":
-    st.header("Convert Live Speech to Text")
-    
-    if st.button("Start Listening"):
-        with st.spinner("Listening..."):
-            live_speech_to_text()
+st.title("Text-to-Speech App 🎤")
 
 # Text-to-Speech Mode with language selection
-if mode == "Text-to-Speech":
-    st.header("Convert Text to Speech")
-    user_input = st.text_area("Enter text to convert into speech:")
-    
-    # Select language for Text-to-Speech
-    language = st.selectbox("Choose language for speech", 
-                            ["English (en)", "Spanish (es)", "French (fr)", "German (de)", "Chinese (zh-CN)"])
-    
-    language_code = language.split(" ")[-1].strip('()')
+st.header("Convert Text to Speech")
+user_input = st.text_area("Enter text to convert into speech:")
 
-    if st.button("Convert to Speech"):
-        if user_input.strip():
-            with st.spinner("Converting..."):
-                text_to_speech(user_input, language_code)
-        else:
-            st.warning("Please enter some text to convert into speech.")
+# Select language for Text-to-Speech
+language = st.selectbox("Choose language for speech", 
+                        ["English (en)", "Spanish (es)", "French (fr)", "German (de)", "Chinese (zh-CN)"])
+
+language_code = language.split(" ")[-1].strip('()')
+
+if st.button("Convert to Speech"):
+    if user_input.strip():
+        with st.spinner("Converting..."):
+            text_to_speech(user_input, language_code)
+    else:
+        st.warning("Please enter some text to convert into speech.")
 
 # Footer section
 st.markdown("---")
